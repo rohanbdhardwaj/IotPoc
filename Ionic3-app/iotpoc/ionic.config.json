@@ -1,0 +1,7 @@
+{
+  "name": "iotpoc",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}
