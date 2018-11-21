@@ -1,13 +1,7 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
-
-import * as d3 from 'd3-selection';
-import * as d3Scale from "d3-scale";
-import * as d3Array from "d3-array";
-import * as d3Axis from "d3-axis";
 import { StatsBarChart } from '../../shared/data';
 import { MqttService, IMqttMessage } from 'ngx-mqtt';
 import { Subscription } from 'rxjs/Subscription';
+import { json, timeFormatDefaultLocale, timeFormatLocale } from 'd3';
 
 @Component({
   selector: 'page-home',
@@ -52,7 +46,7 @@ export class HomePage {
   connectService() {
     let options = {
       /** the hostname of the mqtt broker */
-      hostname: '',
+      hostname: 'broker.mqttdashboard.com',
       /** the port to connect with websocket to the broker */
       port: 8000,
       /** the path parameters to connect to e.g. `/mqtt` */
@@ -75,6 +69,7 @@ export class HomePage {
       .append("svg")
       .attr("width", '100%')
       .attr("height", '100%')
+     
       .attr('viewBox', '0 0 900 500');
 
     /*
@@ -101,7 +96,9 @@ export class HomePage {
       .call(d3Axis.axisBottom(this.x));
     this.g.append("g")
       .attr("class", "axis axis--y")
-      .call(d3Axis.axisLeft(this.y).ticks(10, "%"))
+      .attr("class","tooltip")
+      
+      .call(d3Axis.axisLeft(this.y).ticks(10))
       .append("text")
       .attr("class", "axis-title")
       .attr("transform", "rotate(-90)")
@@ -109,6 +106,7 @@ export class HomePage {
       .attr("dy", "0.71em")
       .attr("text-anchor", "end")
       .text("Frequency");
+      
   }
 
   drawBars() {
@@ -116,6 +114,7 @@ export class HomePage {
       .data(this.data)
       .enter().append("rect")
       .attr("class", "bar")
+      
       .attr("x", (d) => this.x(d.pos))
       .attr("y", (d) => this.y(d.val))
       // .attr("width", (d) => {
@@ -129,14 +128,18 @@ export class HomePage {
 
   subscribeTopic() {
     let that = this;
-    this.subscription = this.mqttService.observe('my/topic').subscribe((message: IMqttMessage) => {
-      let payload = message.payload.toString();
-      let value = parseFloat(payload);
+    this.subscription = this.mqttService.observe('Floatinity/Laptop').subscribe((message: IMqttMessage) => {
+      debugger;
+      let payload =JSON.parse(message.payload.toString());
+      let value = parseFloat(payload.value);
+      let date=new Date();
+      
       if (!isNaN(value) && value > 0) {
         let bar = {
-          pos: this.data.length + 1,
+          pos: date.getDate() +"/"+ date.getMonth()+"/"+date.getFullYear() +" " +date.getHours()+":"+date.getMinutes()+":"+date.getSeconds(),
           val: value
         }
+      
         this.data.push(bar);
         this.svg.remove();
         this.setOptions();
@@ -148,4 +151,32 @@ export class HomePage {
     this.subscription.unsubscribe();
   }
 
+//   $(function() {
+ 
+//     $("#jsGrid").jsGrid({
+//         height: "90%",
+//         width: "100%",
+ 
+//         filtering: true,
+//         editing: true,
+//         sorting: true,
+//         paging: true,
+//         autoload: true,
+ 
+//         pageSize: 15,
+//         pageButtonCount: 5,
+ 
+//         deleteConfirm: "Do you really want to delete the client?",
+ 
+//         fields: [
+//             { name: "Name", type: "text", width: 150 },
+//             { name: "Age", type: "number", width: 50 },
+//             { name: "Address", type: "text", width: 200 },
+//             { name: "Married", type: "checkbox", title: "Is Married", sorting: false },
+//             { type: "control" }
+//         ]
+//     });
+ 
+// });
+  
 }
