@@ -9,4 +9,21 @@
 
 <ion-content padding>
   <div id="barChart"></div>
+   <div>
+<table id="customers">
+<tr>
+  <th>Sr No</th>
+  <th>Device Name</th>
+  <th>Time</th>
+  <th>Value</th>
+</tr>
+<tr *ngFor="let obj of data;let i = index">
+  <td>{{i+1}}</td>
+  <td>device1</td>
+  <td>{{obj.pos}}</td>
+  <td>{{obj.val}}</td>
+</tr>
+
+</table>
+  </div>
 </ion-content>
